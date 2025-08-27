@@ -1,10 +1,26 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Hello!</title>
-</head>
-<body>
-    <H1>Hello World</H1>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Main page{% endblock title %}
+{% block main %}
+ <h1 class="text-center">Список товаров</h1>
+<div class="row g-2">
+{% for item in items %}
+    <div class="col-6">
+        <div class="card w-75 text-white bg-dark mb-3 shadow p-3 rounded">
+            {% if item.img %}
+            <a href="{% url 'item_detail' item.id %}">
+                <img class="card-img-top img-fluid" src="{{ item.img.url }}" alt="{{ item.name }}" width="500" height="500">
+            </a>
+            {% else %}
+            <p>No image available.</p>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ item.name }}</h5>
+                <p class="card-text">{{ item.description }}</p>
+                <p class="card-text text-warning">Цена: {{ item.price }} ТЕНГЕ</p>
+                <a href="{% url 'New' item.id  %}" class="btn btn-primary">Купить</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock main %}
