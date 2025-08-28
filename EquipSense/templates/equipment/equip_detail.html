@@ -1,37 +1,144 @@
+{# equipment/equipment_detail.html #}
 {% extends 'equipment/base.html' %}
+{% load static %}   {# нужен для изображения‑подстановки в случае отсутствия фото #}
+{% load status_extras %}
+
 {% block title %}{{ equipment.name }}{% endblock %}
+
 {% block content %}
-<h1>{{ equipment.name }}</h1>
-<p>{{ equipment.description }}</p>
+<div class="row mb-4">
+    <!-- Фотография -->
+    <div class="col-md-4 text-center">
+        {% if equipment.photo %}
+            <img src="{{ equipment.photo.url }}"
+                 alt="{{ equipment.name }}"
+                 class="img-fluid rounded shadow-sm"
+                 style="max-height: 260px;">
+        {% else %}
+            <img src="{% static 'equipment/img/no_image.svg' %}"
+                 alt="Нет фото"
+                 class="img-fluid rounded shadow-sm"
+                 style="max-height: 260px;">
+        {% endif %}
+    </div>
 
-<h3>Свободно: {{ equipment.quantity_available }}</h3>
+    <!-- Основная информация -->
+    <div class="col-md-8">
+        <h1>{{ equipment.name }}</h1>
 
-<form method="post" class="row g-3">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <div class="col-12">
-    <button type="submit" class="btn btn-primary">Отправить заявку</button>
+        {# Сериал, модель и категория (если есть) #}
+        <p>
+            {% if equipment.serial_number %}<strong>Серийный №:</strong> {{ equipment.serial_number }}<br>{% endif %}
+            {% if equipment.model %}<strong>Модель:</strong> {{ equipment.model }}<br>{% endif %}
+            {% if equipment.category %}<strong>Категория:</strong> {{ equipment.category.name }}<br>{% endif %}
+        </p>
+
+        <p><strong>Описание:</strong></p>
+        <p>{{ equipment.description|linebreaks }}</p>
+
+        <!-- Локация, статус -->
+        <div class="mb-3">
+            {% if equipment.location %}
+                <span class="badge bg-secondary">Лок. {{ equipment.location }}</span>
+            {% endif %}
+            <span class="badge {{ equipment.status|status_color }}">
+                {{ equipment.get_status_display }}
+            </span>
+        </div>
+
+        <!-- Кол‑во и доступность -->
+        <h5>Всего: <span class="badge bg-info">{{ equipment.quantity_total }}</span></h5>
+        <h6>Свободно: <span class="badge bg-success">{{ equipment.quantity_available }}</span></h6>
+
+        <!-- Гарантия -->
+        {% if equipment.warranty_expiry %}
+            <div class="mt-2">
+                <strong>Гарантия до:</strong>
+                {{ equipment.warranty_expiry|date:"d.m.Y" }}
+                {% if equipment.is_under_warranty %}
+                    <span class="badge bg-success ms-1">В гарантии</span>
+                {% else %}
+                    <span class="badge bg-danger ms-1">Гарантия окончена</span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Плановое обслуживание -->
+        {% if equipment.maintenance_interval_days and equipment.next_maintenance_due %}
+            <div class="mt-2">
+                <strong>Плановое ТО:</strong>
+                каждые {{ equipment.maintenance_interval_days }} дн.
+                (следующее — {{ equipment.next_maintenance_due|date:"d.m.Y" }})
+            </div>
+        {% endif %}
+
+        <!-- Теги -->
+        {% if equipment.tags.all %}
+            <div class="mt-2">
+                <strong>Теги:</strong>
+                {% for tag in equipment.tags.all %}
+                    <span class="badge bg-secondary">{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Кнопка «Оформить заявку» -->
+<p class="d-inline-flex gap-1">
+  <button class="btn btn-primary"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapseRequest"
+          aria-expanded="false"
+          aria-controls="collapseRequest">
+    Оформить заявку
+  </button>
+</p>
+
+<!-- Форма заявки -->
+<div class="collapse" id="collapseRequest">
+  <div class="card card-body p-3">
+    <form method="post" class="row g-3">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">Отправить заявку</button>
+      </div>
+    </form>
   </div>
-</form>
+</div>
 
-<h4>Мои заявки к этому оборудованию:</h4>
-<table class="table table-sm">
-  <thead><tr><th>Дата/время</th><th>Кол-во</th><th>Статус</th><th></th></tr></thead>
+<hr>
+
+<!-- Список ваших заявок к этому оборудованию -->
+<h4>Мои заявки к {{ equipment.name }}:</h4>
+<table class="table table-sm table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Дата/время</th>
+      <th scope="col">Кол-во</th>
+      <th scope="col">Статус</th>
+      <th scope="col" style="width:1px;"></th>
+    </tr>
+  </thead>
   <tbody>
     {% for r in user_requests %}
       <tr>
         <td>{{ r.start_dt|date:"d.m.Y H:i" }} – {{ r.end_dt|date:"H:i" }}</td>
         <td>x{{ r.quantity }}</td>
         <td>{{ r.get_status_display }}</td>
-        <td>
+        <td class="text-nowrap">
           {% if r.status == 'P' %}
-            <a href="{% url 'EquipSense:cancel_request' r.pk %}" class="btn btn-danger btn-sm">Отменить</a>
+            <a href="{% url 'EquipSense:cancel_request' r.pk %}"
+               class="btn btn-danger btn-sm">Отменить</a>
           {% endif %}
         </td>
       </tr>
     {% empty %}
-      <tr><td colspan="4" class="text-muted">Нет заявок.</td></tr>
+      <tr><td colspan="4" class="text-muted text-center py-3">Нет заявок.</td></tr>
     {% endfor %}
   </tbody>
 </table>
+
 {% endblock %}

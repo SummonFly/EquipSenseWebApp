@@ -1,5 +1,7 @@
 # equipment_project/urls.py
 from django.conf.urls.static import static
+
+from EquipSense import views
 from EquipSenseWebApp import settings
 
 from django.contrib import admin
@@ -11,7 +13,7 @@ urlpatterns = [
 
     path('', RedirectView.as_view(url='/equipment/'), name='home'),
     path('equipment/', include('EquipSense.urls')),
-
+    path("register/", views.register, name="register"),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
 

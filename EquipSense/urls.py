@@ -1,6 +1,7 @@
 # equipment/urls.py
 from django.urls import path
 from . import views
+from .views import EquipmentCreateView, EquipmentUpdateView
 
 app_name = 'EquipSense'
 
@@ -12,11 +13,9 @@ urlpatterns = [
     path('e/<int:pk>/',      views.equip_detail,        name='equip_detail'),
 
     # CRUD‑операции над оборудованием (только для заведующего)
-    path('e/add/',           views.equip_create,        name='equip_add'),   # create
-    path('e/<int:pk>/edit/', views.equip_update,        name='equip_edit'),  # update
-    path('e/<int:pk>/delete/',views.equip_delete,       name='equip_delete'),# delete
-    path('equipments/create/', views.equipment_create,
-         name='equipment_create'),  # <-- новое имя
+    path('e/<int:pk>/edit/', EquipmentUpdateView.as_view(), name='equip_update'),
+    path('equipments/create/', EquipmentCreateView.as_view(), name='equip_create'),
+    path('e/<int:pk>/delete/',views.equip_delete,       name='equip_delete'),
 
     # ----------------------------------------------------
     #   Заявки на выдачу оборудования
@@ -24,7 +23,10 @@ urlpatterns = [
     path('request/cancel/<int:pk>/',   views.cancel_request,  name='cancel_request'),
     path('requests/review/',           views.request_review,  name='request_review'),
     path('request/<int:pk>/', views.request_detail, name='request_detail'),
+    path('request/<int:pk>/approve/', views.approve_request, name='approve_request'),
+    path('request/<int:pk>/reject/', views.reject_request, name='reject_request'),
     path('my-requests/', views.my_requests, name='my_requests'),
+
 
     # ----------------------------------------------------
     #   Управление менеджерами (только для администратора)

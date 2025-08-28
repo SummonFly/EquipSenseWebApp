@@ -1,11 +1,14 @@
 # equipment/views.py
+from django.contrib.auth import login
 from django.contrib.auth.models import User, Group
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
-from django.views.generic import ListView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView
+from django.contrib import messages
 
 from .models import Equipment, Request
-from .forms import EquipmentForm, RequestForm, ManagerCreationForm, EditUserForm, EquipmentCreateForm
+from .forms import RequestForm, ManagerCreationForm, EditUserForm, EquipmentCreateUpdateForm, RegistrationForm
 
 
 class PendingRequestsListView(ListView):
@@ -23,7 +26,7 @@ class PendingRequestsListView(ListView):
 
 class UserListView(ListView):
     model = User
-    template_name = 'equipment/user_list.html'   # создайте этот шаблон
+    template_name = 'equipment/user_list.html'
     context_object_name = 'users'
 
 
@@ -144,49 +147,58 @@ def cancel_request(request, pk):
 
 # ---------- Заведующий складом ----------
 @login_required
-@permission_required('equipment.add_equipment', raise_exception=True)
-def equipment_create(request):
-    """
-    Создание нового оборудования.
-    Менеджер видит форму; после успешной отправки – переходит на список.
-    """
-    if request.method == 'POST':
-        form = EquipmentCreateForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('EquipSense:equip_list')   # <- перенаправляем
-    else:
-        form = EquipmentCreateForm()
+def approve_request(request, pk):
+    req = get_object_or_404(Request, pk=pk)
 
-    context = {'form': form}
-    return render(request, 'equipment/equipment_form.html', context)
+    # Можно добавить проверку на существование свободного оборудования,
+    # но пока просто меняем статус.
+    if req.status == 'P':
+        req.status = 'A'
+        req.save()
+        messages.success(request, f'Request #{req.pk} approved.')
+    else:
+        messages.warning(request, 'Only pending requests can be approved.')
+
+    return redirect('EquipSense:request_detail', pk=pk)
 
 
 @login_required
-@permission_required('equipment.change_equipment')
-def equip_create(request):
-    if request.method == 'POST':
-        form = EquipmentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('EquipSense:equip_list')
+@user_passes_test(lambda u: u.groups.filter(name='manager').exists() or u.groups.filter(name='administrator').exists())
+def reject_request(request, pk):
+
+    req = get_object_or_404(Request, pk=pk)
+
+    if req.status == 'P':
+        req.status = 'R'
+        req.save()
+        messages.success(request, f'Request #{req.pk} rejected.')
     else:
-        form = EquipmentForm()
-    return render(request, 'equipment/equip_form.html', {'form': form})
+        messages.warning(request, 'Only pending requests can be rejected.')
+
+    return redirect('EquipSense:request_detail', pk=pk)
 
 
-@login_required
-@permission_required('equipment.change_equipment')
-def equip_update(request, pk):
-    equip = get_object_or_404(Equipment, pk=pk)
-    if request.method == 'POST':
-        form = EquipmentForm(request.POST, instance=equip)
-        if form.is_valid():
-            form.save()
-            return redirect('EquipSense:equip_detail', pk=pk)
-    else:
-        form = EquipmentForm(instance=equip)
-    return render(request, 'equipment/equip_form.html', {'form': form})
+class EquipmentCreateView(CreateView):
+    model = Equipment
+    form_class = EquipmentCreateUpdateForm
+    template_name = 'equipment/equipment_form.html'
+    success_url = reverse_lazy('EquipSense:equip_list')
+
+    def get_permission_required(self):
+        return ['equipment.add_equipment']
+
+
+class EquipmentUpdateView(UpdateView):
+    model = Equipment
+    form_class = EquipmentCreateUpdateForm
+    template_name = 'equipment/equipment_form.html'
+    pk_url_kwarg = 'pk'
+
+    def get_success_url(self):
+        return reverse_lazy('EquipSense:equip_detail', kwargs={'pk': self.object.pk})
+
+    def get_permission_required(self):
+        return ['equipment.change_equipment']
 
 
 @login_required
@@ -273,3 +285,19 @@ def delete_user(request, user_id):
     # Если GET – показать страницу подтверждения
     context = {"user_obj": user_obj}
     return render(request, "equipment/user_confirm_delete.html", context)
+
+def register(request):
+    """Регистрация нового пользователя."""
+    if request.method == "POST":
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            group = Group.objects.get(name='employee')
+            user.groups.add(group)
+            login(request, user)
+            return redirect("EquipSense:equip_list")  # замените на нужный вам url
+    else:
+        form = RegistrationForm()
+
+    context = {"form": form}
+    return render(request, "registration/register.html", context)
