@@ -1,0 +1,12 @@
+{# equipment/templates/equipment/equip_form.html #}
+{% extends "equipment/base.html" %}
+
+{% block content %}
+  <h1>Добавить/редактировать оборудование</h1>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}          {# вывод всех полей с ошибками и метками #}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+  </form>
+{% endblock %}

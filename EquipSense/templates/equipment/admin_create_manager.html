@@ -1,0 +1,50 @@
+{% extends "equipment/base.html" %}
+{% load static %}
+
+{% block title %}Создать заведующего складом{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Регистрация нового менеджера</h2>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form.username.label_tag }} {{ form.username }}
+                {{ form.username.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.email.label_tag }} {{ form.email }}
+                {{ form.email.errors }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form.first_name.label_tag }} {{ form.first_name }}
+                {{ form.first_name.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.last_name.label_tag }} {{ form.last_name }}
+                {{ form.last_name.errors }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form.password1.label_tag }} {{ form.password1 }}
+                {{ form.password1.errors }}
+            </div>
+            <div class="col-md-6">
+                {{ form.password2.label_tag }} {{ form.password2 }}
+                {{ form.password2.errors }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Создать менеджера</button>
+    </form>
+</div>
+{% endblock %}

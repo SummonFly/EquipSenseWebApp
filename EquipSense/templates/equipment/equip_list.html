@@ -1,0 +1,27 @@
+{% extends 'equipment/base.html' %}
+{% block title %}Список оборудования{% endblock %}
+{% block content %}
+<h1>Оборудование</h1>
+
+<div class="row">
+  {% for e in equipments %}
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ e.name }}</h5>
+          <p class="card-text">{{ e.description|truncatechars:80 }}</p>
+          <div class="mt-auto">
+            <a href="{% url 'EquipSense:equip_detail' e.pk %}" class="btn btn-primary btn-sm">Подробнее</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p>Ничего не найдено.</p>
+  {% endfor %}
+</div>
+
+{% if perms.equipment.add_equipment %}
+  <a href="{% url 'EquipSense:equip_add' %}" class="btn btn-success">Добавить оборудование</a>
+{% endif %}
+{% endblock %}

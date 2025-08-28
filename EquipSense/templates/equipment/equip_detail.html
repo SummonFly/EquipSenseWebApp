@@ -1,0 +1,37 @@
+{% extends 'equipment/base.html' %}
+{% block title %}{{ equipment.name }}{% endblock %}
+{% block content %}
+<h1>{{ equipment.name }}</h1>
+<p>{{ equipment.description }}</p>
+
+<h3>Свободно: {{ equipment.quantity_available }}</h3>
+
+<form method="post" class="row g-3">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Отправить заявку</button>
+  </div>
+</form>
+
+<h4>Мои заявки к этому оборудованию:</h4>
+<table class="table table-sm">
+  <thead><tr><th>Дата/время</th><th>Кол-во</th><th>Статус</th><th></th></tr></thead>
+  <tbody>
+    {% for r in user_requests %}
+      <tr>
+        <td>{{ r.start_dt|date:"d.m.Y H:i" }} – {{ r.end_dt|date:"H:i" }}</td>
+        <td>x{{ r.quantity }}</td>
+        <td>{{ r.get_status_display }}</td>
+        <td>
+          {% if r.status == 'P' %}
+            <a href="{% url 'EquipSense:cancel_request' r.pk %}" class="btn btn-danger btn-sm">Отменить</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4" class="text-muted">Нет заявок.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

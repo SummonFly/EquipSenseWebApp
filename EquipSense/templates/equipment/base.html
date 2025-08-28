@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Учет оборудования{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+  <div class="container-fluid">
+    {% if role == 'admin' %}
+      <a class="navbar-brand" href="{% url 'EquipSense:admin_dashboard' %}">EquipSense</a>
+    {% elif role == 'manager' %}
+      <a class="navbar-brand" href="{% url 'EquipSense:manager_dashboard' %}">EquipSense</a>
+    {% else %}
+      <a class="navbar-brand" href="{% url 'EquipSense:employee_dashboard' %}">EquipSense</a>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+       <div class="ml-auto">
+      Профиль: {{ role|capfirst }} |
+      <form action="{% url 'logout' %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-link">Выйти</button>
+      </form>
+    </div>
+    {% else %}
+      <a class="nav-link text-light" href="{% url 'login' %}">Войти</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="container">
+  {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
