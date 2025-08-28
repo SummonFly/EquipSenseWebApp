@@ -1,0 +1,51 @@
+{% extends "equipment/base.html" %}
+{% load static %}
+
+{# --------------------------------------------------------------- #}
+{#   Employee (ordinary user) dashboard                           #}
+{# --------------------------------------------------------------- #}
+
+{% block title %}Employee Dashboard – Equipment Sense{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <h1 class="mb-3">Welcome, {{ request.user.get_full_name|default:request.user.username }}!</h1>
+
+    <!-- Quick actions -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-sm-6">
+            <a href="{% url 'EquipSense:equip_list' %}" class="btn btn-primary w-100">
+                <i class="bi bi-box-seam"></i> Browse Equipment
+            </a>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+            <a href="{% url 'EquipSense:request_create' %}" class="btn btn-success w-100">
+                <i class="bi bi-plus-square"></i> New Request
+            </a>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+            <a href="{% url 'EquipSense:my_requests' %}" class="btn btn-info w-100">
+                <i class="bi bi-clock-history"></i> My Requests History
+            </a>
+        </div>
+    </div>
+
+    <!-- Short summary -->
+    <div class="card shadow-sm">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Upcoming Approved Request(s)</h5>
+            {% if upcoming_requests %}
+                <span class="badge bg-success rounded-pill">{{ upcoming_requests|length }}</span>
+            {% else %}
+                <span class="text-muted fst-italic">None</span>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock content %}
+
+{# --------------------------------------------------------------- #}

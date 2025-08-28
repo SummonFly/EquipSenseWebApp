@@ -1,0 +1,17 @@
+{# templates/equipment/equipment_form.html #}
+{% extends "equipment/base.html" %}
+{% load static %}
+
+{% block title %}Create Equipment{% endblock %}
+
+{% block content %}
+<h2>Create New Equipment</h2>
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="{% url 'EquipSense:equip_list' %}" class="btn btn-secondary">
+        Cancel
+    </a>
+</form>
+{% endblock %}

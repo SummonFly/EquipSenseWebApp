@@ -1,0 +1,14 @@
+{% extends 'equipment/base.html' %}
+{% load static %}
+
+{% block title %}Редактировать {{ user_obj.get_full_name|default:user_obj.username }}{% endblock %}
+
+{% block content %}
+<h2>Редактировать пользователя</h2>
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Сохранить</button>
+    <a href="{% url 'EquipSense:user_list' %}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}

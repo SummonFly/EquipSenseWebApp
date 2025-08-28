@@ -1,0 +1,88 @@
+{% extends "equipment/base.html" %}
+{% load static %}
+
+{# --------------------------------------------------------------- #}
+{#   Administrator dashboard                                      #}
+{# --------------------------------------------------------------- #}
+
+{% block title %}Administrator Dashboard – Equipment Sense{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <h1 class="mb-3">Admin Panel</h1>
+
+    <!-- Overview cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-sm-6">
+            <div class="card text-white bg-primary h-100 shadow-sm">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5>All Equipment</h5>
+                    <p class="display-6">{{ equipment_count }}</p>
+                </div>
+                <a href="{% url 'EquipSense:equip_list' %}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+            <div class="card text-white bg-success h-100 shadow-sm">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5>Users</h5>
+                    <p class="display-6">{{ user_count }}</p>
+                </div>
+                <a href="{% url 'EquipSense:user_list' %}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+            <div class="card text-white bg-warning h-100 shadow-sm">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5>Pending Requests</h5>
+                    <p class="display-6">{{ pending_requests_count }}</p>
+                </div>
+                <a href="{% url 'EquipSense:pending_requests' %}" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager management -->
+    <h4>Warehouse Managers</h4>
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for manager in managers %}
+            <tr>
+                <td>{{ manager.get_full_name|default:manager.username }}</td>
+                <td>{{ manager.email }}</td>
+                <td>
+                    <a href="{% url 'EquipSense:edit_user' manager.pk %}" class="btn btn-sm btn-outline-secondary">
+                        Edit
+                    </a>
+                    <form action="{% url 'EquipSense:delete_user' manager.pk %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this manager?');">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">No managers assigned.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'EquipSense:create_manager' %}" class="btn btn-success">
+        <i class="bi bi-plus-square"></i> Add New Manager
+    </a>
+
+</div>
+{% endblock content %}
+{# --------------------------------------------------------------- #}

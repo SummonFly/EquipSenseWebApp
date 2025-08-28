@@ -1,0 +1,15 @@
+{% extends 'equipment/base.html' %}
+{% load static %}
+
+{% block title %}Удалить {{ user_obj.get_full_name|default:user_obj.username }}{% endblock %}
+
+{% block content %}
+<h2>Вы действительно хотите удалить пользователя?</h2>
+<p><strong>{{ user_obj.get_full_name|default:user_obj.username }}</strong></p>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Да, удалить</button>
+    <a href="{% url 'EquipSense:user_list' %}" class="btn btn-secondary">Нет, отменить</a>
+</form>
+{% endblock %}

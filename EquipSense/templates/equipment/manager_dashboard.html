@@ -1,0 +1,79 @@
+{% extends "equipment/base.html" %}
+{% load static %}
+
+{# --------------------------------------------------------------- #}
+{#   Manager (warehouse supervisor) dashboard                    #}
+{# --------------------------------------------------------------- #}
+
+{% block title %}Manager Dashboard – Equipment Sense{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <h1 class="mb-3">Warehouse Manager</h1>
+
+    <!-- Quick links -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-sm-12">
+            <a href="{% url 'EquipSense:equip_list' %}" class="btn btn-primary w-100">
+                <i class="bi bi-box-seam"></i> View All Equipment
+            </a>
+        </div>
+
+        <div class="col-md-6 col-sm-12">
+            <a href="{% url 'EquipSense:equipment_create' %}" class="btn btn-success w-100">
+                <i class="bi bi-plus-square"></i> Add New Item
+            </a>
+        </div>
+
+        <div class="col-md-6 col-sm-12">
+            <a href="{% url 'EquipSense:pending_requests' %}" class="btn btn-warning w-100">
+                <i class="bi bi-envelope-open"></i> Pending Requests ({{ pending_count }})
+            </a>
+        </div>
+
+        <div class="col-md-6 col-sm-12">
+            <a href="{% url 'EquipSense:my_requests' %}" class="btn btn-info w-100">
+                <i class="bi bi-clock-history"></i> My Approved Requests
+            </a>
+        </div>
+    </div>
+
+    <!-- Table of pending requests -->
+   {% if pending_requests %}
+    <h4 class="mt-5">Pending Requests</h4>
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Requester</th>
+                <th>Equipment</th>
+                <th>From / To</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in pending_requests %}
+                <tr>
+                    <td>{{ req.user.get_full_name|default:req.user.username }}</td>
+                    <td>{{ req.equipment.name }}</td>
+                    <td>{{ req.start_date }} – {{ req.end_date }}</td>
+                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                    <td class="text-end">
+                        <a href="{% url 'EquipSense:request_detail' req.pk %}"
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No pending requests at the moment.</p>
+{% endif %}
+
+
+</div>
+{% endblock content %}
+{# --------------------------------------------------------------- #}

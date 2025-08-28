@@ -1,0 +1,37 @@
+{% extends "equipment/base.html" %}
+{% load static %}
+
+{% block title %}Моя история заявок{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>История моих заявок</h2>
+
+    {% if history %}
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Оборудование</th>
+                    <th>Сроки использования</th>
+                    <th>Статус</th>
+                    <th>Дата заявки</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in history %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ req.equipment.name }}</td>
+                    <td>{{ req.start_date }} – {{ req.end_date }}</td>
+                    <td class="text-muted">{{ req.get_status_display }}</td>
+                    <td>{{ req.created_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Вы ещё не делали заявок.</p>
+    {% endif %}
+</div>
+{% endblock %}
