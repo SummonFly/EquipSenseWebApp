@@ -12,6 +12,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_neondb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -26,17 +41,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Drop old test database if exists
+      - name: Create test database
         env:
-          PGHOST: ${{ secrets.PGHOST }}
+          PGHOST: localhost
           PGPORT: 5432
-          PGUSER: ${{ secrets.PGUSER }}
-          PGPASSWORD: ${{ secrets.PGPASSWORD }}
+          PGUSER: postgres
+          PGPASSWORD: postgres
         run: |
-          echo "Removing old test database..."
           psql -h "$PGHOST" -p "$PGPORT" \
-               -U "$PGUSER" -d neondb \
-               -c "DROP DATABASE IF EXISTS test_neondb;"
+               -U "$PGUSER" -c "CREATE DATABASE test_neondb;"
 
       - name: Run tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
         run: python manage.py test
