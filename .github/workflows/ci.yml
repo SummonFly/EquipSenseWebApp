@@ -29,9 +29,8 @@ jobs:
       - name: Drop old test database if exists
         env:
           PASSWORD: ${{ secrets.PGPASSWORD }}
-          HOST: ${{ secrets.PGHOST }}
         run: |
-          psql -h HOST -U $PGUSER -d neondb \
+          psql -h $PGHOST -U $PGUSER -d neondb \
             -c "DROP DATABASE IF EXISTS test_neondb;"
 
       - name: Run tests
