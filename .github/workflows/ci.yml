@@ -30,7 +30,7 @@ jobs:
         env:
           PASSWORD: ${{ secrets.PGPASSWORD }}
         run: |
-          psql -h $PGHOST -u $PGUSER -d neondb \
+          psql -h localhost -u $PGUSER -d neondb \
             -c "DROP DATABASE IF EXISTS test_neondb;"
 
       - name: Run tests
