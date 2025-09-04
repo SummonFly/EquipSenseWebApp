@@ -53,6 +53,12 @@ jobs:
           psql -h "$PGHOST" -p "$PGPORT" \
                -U "$PGUSER" -c "CREATE DATABASE test_neondb;"
 
+        - name: Apply migrations
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
+        run: |
+          python manage.py migrate --noinput
+
       - name: Run tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
