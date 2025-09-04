@@ -41,17 +41,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Create test database
-        env:
-          PGHOST: localhost
-          PGPORT: 5432
-          PGUSER: postgres
-          PGPASSWORD: postgres
-        run: |
-          psql -h "$PGHOST" -p "$PGPORT" \
-               -U "$PGUSER" -c "CREATE DATABASE test_neondb;"
+      - name: Recreate test database
+          env:
+            PGHOST: localhost
+            PGPORT: 5432
+            PGUSER: postgres
+            PGPASSWORD: postgres
+          run: |
+            psql -h "$PGHOST" -p "$PGPORT" \
+              -U "$PGUSER" -c "DROP DATABASE IF EXISTS test_neondb;"
+            psql -h "$PGHOST" -p "$PGPORT" \
+              -U "$PGUSER" -c "CREATE DATABASE test_neondb;"
 
-      - name: Run tests
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
-        run: python manage.py test
+            - name: Run tests
+              env:
+                DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
+              run: python manage.py test
