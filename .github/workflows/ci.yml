@@ -56,4 +56,4 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
-        run: python manage.py test
+        run: python manage.py test --keepdb
