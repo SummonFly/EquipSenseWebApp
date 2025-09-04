@@ -26,5 +26,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Drop old test database if exists
+        env:
+          PASSWORD: ${{ secrets.PGPASSWORD }}
+        run: |
+          psql -h localhost -U $PGUSER -d neondb \
+            -c "DROP DATABASE IF EXISTS test_neondb;"
+
       - name: Run tests
         run: python manage.py test
