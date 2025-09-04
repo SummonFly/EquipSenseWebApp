@@ -28,7 +28,7 @@ jobs:
 
       - name: Drop old test database if exists
         env:
-          PGHOST: localhost
+          PGHOST: ${{ secrets.PGHOST }}
           PGPORT: 5432
           PGUSER: ${{ secrets.PGUSER }}
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
