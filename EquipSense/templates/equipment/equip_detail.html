@@ -9,9 +9,9 @@
 <div class="row mb-4">
     <!-- Фотография -->
     <div class="col-md-4 text-center">
-        {% if equipment.photo %}
-            <img src="{{ equipment.photo.url }}"
-                 alt="{{ equipment.name }}"
+        {% if equipment.photo_url %}
+            <img src="{{ equipment.photo_url }}" alt="{{ equipment.name }}"
+
                  class="img-fluid rounded shadow-sm"
                  style="max-height: 260px;">
         {% else %}

@@ -15,7 +15,7 @@ urlpatterns = [
     # CRUD‑операции над оборудованием (только для заведующего)
     path('e/<int:pk>/edit/', EquipmentUpdateView.as_view(), name='equip_update'),
     path('equipments/create/', EquipmentCreateView.as_view(), name='equip_create'),
-    path('e/<int:pk>/delete/',views.equip_delete,       name='equip_delete'),
+    path('e/<int:pk>/delete/', views.equip_delete,    name='equip_delete'),
 
     # ----------------------------------------------------
     #   Заявки на выдачу оборудования
@@ -25,6 +25,7 @@ urlpatterns = [
     path('request/<int:pk>/', views.request_detail, name='request_detail'),
     path('request/<int:pk>/approve/', views.approve_request, name='approve_request'),
     path('request/<int:pk>/reject/', views.reject_request, name='reject_request'),
+    path('request/<int:pk>/return/', views.return_request, name='return_request'),
     path('my-requests/', views.my_requests, name='my_requests'),
 
 

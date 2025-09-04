@@ -74,12 +74,11 @@ class Equipment(models.Model):
     # Количество
     quantity_total = models.PositiveIntegerField(default=1)
 
-    # Фотография (необязательно)
-    photo = models.ImageField(
-        upload_to='equipment_photos/',
+    # Ссылка на изображение (необязательно)
+    photo_url = models.URLField(
         blank=True,
         null=True,
-        help_text= "Фотография оборудования"
+        help_text="Ссылка на фотографию оборудования",
     )
 
     # Даты и гарантии

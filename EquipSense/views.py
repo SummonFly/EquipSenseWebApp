@@ -82,9 +82,9 @@ def my_requests(request):
     Показываем только те заявки, которые были приняты и принадлежат текущему пользователю.
     """
     approved = Request.objects.filter(
-        assigned_to=request.user,
-        status='approved',
-    ).select_related('equipment', 'assigned_by')
+        user=request.user,
+        status='A',
+    ).select_related('equipment', 'user')
     return render(request, 'equipment/my_requests.html', {'requests': approved})
 
 
@@ -142,6 +142,14 @@ def cancel_request(request, pk):
     req = get_object_or_404(Request, pk=pk, user=request.user)
     if req.status == Request.Status.PENDING:
         req.delete()
+    return redirect('EquipSense:equip_detail', pk=req.equipment.pk)
+
+@login_required
+def return_request(request, pk):
+    req = get_object_or_404(Request, pk=pk, user=request.user)
+    if req.status == Request.Status.APPROVED:
+        req.status = Request.Status.RETURNED
+        req.save()
     return redirect('EquipSense:equip_detail', pk=req.equipment.pk)
 
 
@@ -206,7 +214,11 @@ class EquipmentUpdateView(UpdateView):
 def equip_delete(request, pk):
     equip = get_object_or_404(Equipment, pk=pk)
     if request.method == 'POST':
+        requests = Request.objects.filter(equipment=equip)
+        for r in requests:
+            r.delete()
         equip.delete()
+
         return redirect('EquipSense:equip_list')
     return render(request, 'equipment/equip_confirm_delete.html', {'object': equip})
 

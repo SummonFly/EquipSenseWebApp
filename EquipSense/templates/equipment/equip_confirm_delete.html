@@ -1,0 +1,15 @@
+{% extends 'equipment/base.html' %}
+{% load static %}
+
+{% block title %}Удалить {{ equip.name}}{% endblock %}
+
+{% block content %}
+<h2>Вы действительно хотите удалить оборудование?</h2>
+<p><strong>{{ equip.name }}</strong></p>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Да, удалить</button>
+    <a href="{% url 'EquipSense:equip_list' %}" class="btn btn-secondary">Нет, отменить</a>
+</form>
+{% endblock %}

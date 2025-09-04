@@ -28,7 +28,7 @@ class EquipmentCreateUpdateForm(forms.ModelForm):
             "status",
 
             # Фотография
-            "photo",
+            "photo_url",
 
             # Технические данные
             "purchase_date",
