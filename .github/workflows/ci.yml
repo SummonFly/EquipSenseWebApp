@@ -28,10 +28,15 @@ jobs:
 
       - name: Drop old test database if exists
         env:
-          PASSWORD: ${{ secrets.PGPASSWORD }}
+          PGHOST: localhost
+          PGPORT: 5432
+          PGUSER: ${{ secrets.PGUSER }}
+          PGPASSWORD: ${{ secrets.PGPASSWORD }}
         run: |
-          psql -h localhost -u $PGUSER -d neondb \
-            -c "DROP DATABASE IF EXISTS test_neondb;"
+          echo "Removing old test database..."
+          psql -h "$PGHOST" -p "$PGPORT" \
+               -U "$PGUSER" -d neondb \
+               -c "DROP DATABASE IF EXISTS test_neondb;"
 
       - name: Run tests
         run: python manage.py test
