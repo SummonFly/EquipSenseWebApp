@@ -79,7 +79,7 @@ jobs:
           from django.conf import settings
           from django.test.utils import get_runner
           
-          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project.settings')
+          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquipSenseWebApp.settings')
           django.setup()
           
           TestRunner = get_runner(settings)
