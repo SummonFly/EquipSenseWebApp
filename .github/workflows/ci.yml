@@ -30,19 +30,30 @@ jobs:
         run: |
           mkdir -p static
 
-      - name: Create migrations
-        env:
-          DATABASE_URL: sqlite:///:memory:
-          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings
-          SECRET_KEY: dummy-secret-key-for-ci
+      - name: Run tests with SQLite
         run: |
-          python manage.py makemigrations --noinput
-
-      - name: Run tests
-        env:
-          DATABASE_URL: sqlite:///:memory:
-          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings
-          SECRET_KEY: dummy-secret-key-for-ci
-        run: |
-          python manage.py migrate --noinput
-          python manage.py test --noinput
+          # Используем существующие настройки, но переопределяем БД
+          python -c "
+          import os
+          import django
+          
+          # Сначала устанавливаем SQLite
+          os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
+          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquipSenseWebApp.settings')
+          
+          # Теперь импортируем и настраиваем
+          django.setup()
+          
+          # Применяем миграции
+          from django.core.management import execute_from_command_line
+          execute_from_command_line(['manage.py', 'makemigrations', '--noinput'])
+          execute_from_command_line(['manage.py', 'migrate', '--noinput'])
+          
+          # Запускаем тесты
+          from django.test.utils import get_runner
+          from django.conf import settings
+          TestRunner = get_runner(settings)
+          test_runner = TestRunner(verbosity=1)
+          failures = test_runner.run_tests(['EquipSense.tests'])
+          exit(bool(failures))
+          "
