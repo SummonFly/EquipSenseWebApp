@@ -58,19 +58,44 @@ jobs:
           # Удаляем и создаем базу
           psql -h "$PGHOST" -p "$PGPORT" \
                -U "$PGUSER" -c "DROP DATABASE IF EXISTS test_neondb;" || true
-          psql -h "$PGHOST" -p "$PGPORT" \
+          psql -h "$PGPORT" -p "$PGPORT" \
                -U "$PGUSER" -c "CREATE DATABASE test_neondb;"
 
-      - name: Apply migrations to test database
+      - name: Apply migrations
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
-          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings  # ЗАМЕНИТЕ НА ВАШЕ ИМЯ
+          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings
         run: |
           python manage.py migrate --noinput
 
-      - name: Run tests
+      - name: Run tests with custom test runner
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
-          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings  # ЗАМЕНИТЕ НА ВАШЕ ИМЯ
+          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings
         run: |
-          python manage.py test --noinput
+          python -c "
+          import os
+          import django
+          from django.conf import settings
+          
+          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquipSenseWebApp.settings')
+          django.setup()
+          
+          # Запускаем тесты напрямую, минуя стандартный test runner
+          from django.test.utils import get_runner
+          TestRunner = get_runner(settings)
+          
+          # Создаем кастомный runner который не пытается управлять БД
+          class CustomTestRunner(TestRunner):
+              def setup_databases(self, **kwargs):
+                  # Не создаем БД, так как она уже создана и настроена
+                  return {}
+              
+              def teardown_databases(self, old_config, **kwargs):
+                  # Не удаляем БД
+                  pass
+          
+          test_runner = CustomTestRunner(verbosity=1)
+          failures = test_runner.run_tests(['EquipSense.tests'])
+          exit(bool(failures))
+          "
