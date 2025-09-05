@@ -32,17 +32,39 @@ jobs:
 
       - name: Run tests with SQLite
         run: |
-          # Используем SQLite для тестов
+          # Принудительно используем SQLite
           python -c "
           import os
           import django
           from django.conf import settings
           
-          # Устанавливаем переменные окружения
-          os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
+          # Явно устанавливаем SQLite
           os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquipSenseWebApp.settings')
+          os.environ.setdefault('DATABASE_URL', 'sqlite:///:memory:')
           
-          # Настраиваем Django
+          # Импортируем и настраиваем settings
+          django.conf.settings.configure(
+              DEBUG=True,
+              DATABASES={
+                  'default': {
+                      'ENGINE': 'django.db.backends.sqlite3',
+                      'NAME': ':memory:',
+                  }
+              },
+              INSTALLED_APPS=[
+                  'django.contrib.admin',
+                  'django.contrib.auth',
+                  'django.contrib.contenttypes',
+                  'django.contrib.sessions',
+                  'django.contrib.messages',
+                  'django.contrib.staticfiles',
+                  'EquipSense',
+              ],
+              # Добавьте другие необходимые настройки
+              USE_TZ=True,
+              SECRET_KEY='test-key-for-ci',
+          )
+          
           django.setup()
           
           # Применяем миграции
