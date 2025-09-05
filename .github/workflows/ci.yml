@@ -64,26 +64,13 @@ jobs:
       - name: Apply migrations to test database
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
+          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings  # ЗАМЕНИТЕ НА ВАШЕ ИМЯ
         run: |
           python manage.py migrate --noinput
 
-      - name: Run tests with existing database
+      - name: Run tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
-          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings
+          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings  # ЗАМЕНИТЕ НА ВАШЕ ИМЯ
         run: |
-          # Запускаем тесты, указывая использовать существующую БД
-          python -c "
-          import os
-          import django
-          from django.conf import settings
-          from django.test.utils import get_runner
-          
-          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquipSenseWebApp.settings')
-          django.setup()
-          
-          TestRunner = get_runner(settings)
-          test_runner = TestRunner(verbosity=1, keepdb=True)
-          failures = test_runner.run_tests(['EquipSense.tests'])
-          exit(bool(failures))
-          "
+          python manage.py test --noinput
