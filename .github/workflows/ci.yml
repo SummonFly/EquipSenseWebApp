@@ -70,7 +70,7 @@ jobs:
       - name: Run tests with existing database
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_neondb
-          DJANGO_SETTINGS_MODULE: your_project.settings
+          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings
         run: |
           # Запускаем тесты, указывая использовать существующую БД
           python -c "
