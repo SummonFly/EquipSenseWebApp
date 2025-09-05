@@ -30,51 +30,19 @@ jobs:
         run: |
           mkdir -p static
 
-      - name: Run tests with SQLite
+      - name: Create migrations
+        env:
+          DATABASE_URL: sqlite:///:memory:
+          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings
+          SECRET_KEY: dummy-secret-key-for-ci
         run: |
-          # Принудительно используем SQLite
-          python -c "
-          import os
-          import django
-          from django.conf import settings
-          
-          # Явно устанавливаем SQLite
-          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'EquipSenseWebApp.settings')
-          os.environ.setdefault('DATABASE_URL', 'sqlite:///:memory:')
-          
-          # Импортируем и настраиваем settings
-          django.conf.settings.configure(
-              DEBUG=True,
-              DATABASES={
-                  'default': {
-                      'ENGINE': 'django.db.backends.sqlite3',
-                      'NAME': ':memory:',
-                  }
-              },
-              INSTALLED_APPS=[
-                  'django.contrib.admin',
-                  'django.contrib.auth',
-                  'django.contrib.contenttypes',
-                  'django.contrib.sessions',
-                  'django.contrib.messages',
-                  'django.contrib.staticfiles',
-                  'EquipSense',
-              ],
-              # Добавьте другие необходимые настройки
-              USE_TZ=True,
-              SECRET_KEY='test-key-for-ci',
-          )
-          
-          django.setup()
-          
-          # Применяем миграции
-          from django.core.management import execute_from_command_line
-          execute_from_command_line(['manage.py', 'migrate', '--noinput'])
-          
-          # Запускаем тесты
-          from django.test.utils import get_runner
-          TestRunner = get_runner(settings)
-          test_runner = TestRunner(verbosity=1)
-          failures = test_runner.run_tests(['EquipSense.tests'])
-          exit(bool(failures))
-          "
+          python manage.py makemigrations --noinput
+
+      - name: Run tests
+        env:
+          DATABASE_URL: sqlite:///:memory:
+          DJANGO_SETTINGS_MODULE: EquipSenseWebApp.settings
+          SECRET_KEY: dummy-secret-key-for-ci
+        run: |
+          python manage.py migrate --noinput
+          python manage.py test --noinput
